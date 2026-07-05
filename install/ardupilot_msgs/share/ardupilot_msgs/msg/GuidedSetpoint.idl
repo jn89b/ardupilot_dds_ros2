@@ -1,0 +1,46 @@
+// generated from rosidl_adapter/resource/msg.idl.em
+// with input from ardupilot_msgs/msg/GuidedSetpoint.msg
+// generated code does not contain a copyright notice
+
+
+module ardupilot_msgs {
+  module msg {
+    @verbatim (language="comment", text=
+      "This topic publishes Plane guided setpoints in a single command." "\n"
+      "Use set_heading, set_airspeed, and set_altitude to control which" "\n"
+      "fields are applied on the vehicle.")
+    struct GuidedSetpoint {
+      @verbatim (language="comment", text=
+        "Heading control." "\n"
+        "heading_type:" "\n"
+        "  0 = clear heading tracking" "\n"
+        "  1 = course over ground" "\n"
+        "  2 = maintain vehicle heading")
+      boolean set_heading;
+
+      uint8 heading_type;
+
+      float heading_deg;
+
+      float heading_accel_limit_mss;
+
+      @verbatim (language="comment", text=
+        "Airspeed control.")
+      boolean set_airspeed;
+
+      float airspeed_mps;
+
+      float airspeed_accel_mps2;
+
+      @verbatim (language="comment", text=
+        "Altitude control.")
+      boolean set_altitude;
+
+      uint8 altitude_frame;
+
+      float altitude_m;
+
+      float climb_rate_mps;
+    };
+  };
+};
