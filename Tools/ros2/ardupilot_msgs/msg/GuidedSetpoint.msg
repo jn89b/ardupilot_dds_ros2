@@ -7,6 +7,8 @@
 #   0 = clear heading tracking
 #   1 = course over ground
 #   2 = maintain vehicle heading
+std_msgs/Header header
+
 bool set_heading
 uint8 heading_type
 float32 heading_deg

@@ -2,7 +2,7 @@ repositories:
   ardupilot:
     type: git
     url: https://github.com/jn89b/ardupilot_dds_ros2.git
-    version: master
+    version: main
 
   micro_ros_agent:
     type: git
