@@ -2,9 +2,13 @@
 // with input from ardupilot_msgs/msg/GuidedSetpoint.msg
 // generated code does not contain a copyright notice
 
+#include "std_msgs/msg/Header.idl"
+
 module ardupilot_msgs {
   module msg {
     struct GuidedSetpoint {
+      std_msgs::msg::Header header;
+
       boolean set_heading;
       uint8 heading_type;
       float heading_deg;

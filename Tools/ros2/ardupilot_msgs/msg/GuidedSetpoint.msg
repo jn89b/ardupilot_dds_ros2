@@ -1,13 +1,13 @@
 # This topic publishes Plane guided setpoints in a single command.
 # Use set_heading, set_airspeed, and set_altitude to control which
 # fields are applied on the vehicle.
+std_msgs/Header header
 
 # Heading control.
 # heading_type:
 #   0 = clear heading tracking
 #   1 = course over ground
 #   2 = maintain vehicle heading
-std_msgs/Header header
 
 bool set_heading
 uint8 heading_type
