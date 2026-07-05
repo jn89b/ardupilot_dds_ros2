@@ -87,7 +87,10 @@ bool AP_DDS_External_Control::handle_velocity_control(geometry_msgs_msg_TwistSta
 }
 
 bool AP_DDS_External_Control::handle_guided_setpoint(ardupilot_msgs_msg_GuidedSetpoint &guided_setpoint)
-{
+{ 
+    /* Will use the same mechanism on how we set heading, airspeed, and altitude from mavlink
+    protocol when the drone is in guided mode. Need to make sure units are correct
+    as well as checks for NaN values. If a value is NaN, we will not set that value. */
     return false;
 }
 
