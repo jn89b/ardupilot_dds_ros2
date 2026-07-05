@@ -36,6 +36,39 @@ ros2 launch ardupilot_sitl sitl.launch.py -s
 A `colcon` package for testing communication between `micro_ros_agent` and the
 ArduPilot `AP_DDS` client library.
 
+## Add a new DDS message
+
+ArduPilot DDS messages are defined in `libraries/AP_DDS/Idl/ardupilot_msgs/msg/`
+and generated with `microxrceddsgen`.
+
+If you add a new message such as `GuidedSetpoint`, run the generator from the
+repository root:
+
+```bash
+mkdir -p build/sitl/libraries/AP_DDS/generated/ardupilot_msgs/msg
+microxrceddsgen -cs -replace -default-container-prealloc-size 8 \
+	-d build/sitl/libraries/AP_DDS/generated/ardupilot_msgs/msg \
+	-I libraries/AP_DDS/Idl \
+	libraries/AP_DDS/Idl/ardupilot_msgs/msg/GuidedSetpoint.idl
+```
+
+This generates the corresponding `.h` and `.c` files under
+`build/sitl/libraries/AP_DDS/generated/ardupilot_msgs/msg/`.
+
+If the message is part of the ROS 2 `ardupilot_msgs` package, also register it
+in `Tools/ros2/ardupilot_msgs/CMakeLists.txt` inside the
+`rosidl_generate_interfaces(${PROJECT_NAME} ...)` block. Add the new `.msg`
+file there so `colcon` generates the ROS interface before AP_DDS uses the
+matching IDL.
+
+After generating the files, rebuild ArduPilot with `./waf` so the new message
+is compiled into AP_DDS.
+```
+cd ardupilot
+./waf configure --board sitl --enable-DDS
+./waf ap
+```
+
 ## Prerequisites
 
 The packages depend on:

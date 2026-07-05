@@ -86,6 +86,11 @@ bool AP_DDS_External_Control::handle_velocity_control(geometry_msgs_msg_TwistSta
     return false;
 }
 
+bool AP_DDS_External_Control::handle_guided_setpoint(ardupilot_msgs_msg_GuidedSetpoint &guided_setpoint)
+{
+    return false;
+}
+
 bool AP_DDS_External_Control::arm(AP_Arming::Method method, bool do_arming_checks)
 {
     auto *external_control = AP::externalcontrol();

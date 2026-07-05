@@ -1,0 +1,23 @@
+// generated from rosidl_adapter/resource/msg.idl.em
+// with input from ardupilot_msgs/msg/GuidedSetpoint.msg
+// generated code does not contain a copyright notice
+
+module ardupilot_msgs {
+  module msg {
+    struct GuidedSetpoint {
+      boolean set_heading;
+      uint8 heading_type;
+      float heading_deg;
+      float heading_accel_limit_mss;
+
+      boolean set_airspeed;
+      float airspeed_mps;
+      float airspeed_accel_mps2;
+
+      boolean set_altitude;
+      uint8 altitude_frame;
+      float altitude_m;
+      float climb_rate_mps;
+    };
+  };
+};
