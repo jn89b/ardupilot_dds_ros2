@@ -22,6 +22,11 @@ public:
     */
     bool set_airspeed(const float airspeed) override WARN_IF_UNUSED;
 
+    // Guided slew-compatible control paths using MAVLink semantics.
+    bool set_guided_airspeed(const float airspeed, const float acceleration) override WARN_IF_UNUSED;
+    bool set_guided_altitude(const float altitude, const uint8_t frame, const float climb_rate) override WARN_IF_UNUSED;
+    bool set_guided_heading(const uint8_t heading_type, const float heading, const float heading_accel_limit) override WARN_IF_UNUSED;
+
 };
 
 #endif // AP_EXTERNAL_CONTROL_ENABLED

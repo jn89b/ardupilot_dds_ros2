@@ -6,6 +6,8 @@
 #include "AP_DDS_Frames.h"
 #include <AP_AHRS/AP_AHRS.h>
 
+#include <GCS_MAVLink/GCS.h>
+
 #include <AP_ExternalControl/AP_ExternalControl.h>
 
 bool AP_DDS_External_Control::handle_global_position_control(ardupilot_msgs_msg_GlobalPosition& cmd_pos)
@@ -87,18 +89,86 @@ bool AP_DDS_External_Control::handle_velocity_control(geometry_msgs_msg_TwistSta
 }
 
 bool AP_DDS_External_Control::handle_guided_setpoint(ardupilot_msgs_msg_GuidedSetpoint &guided_setpoint)
-{ 
-    /* Will use the same mechanism on how we set heading, airspeed, and altitude from mavlink
-    protocol when the drone is in guided mode. Need to make sure units are correct
-    as well as checks for NaN values. If a value is NaN, we will not set that value. */
+{
     auto *external_control = AP::externalcontrol();
     if (external_control == nullptr) {
+        GCS_SEND_TEXT(MAV_SEVERITY_WARNING, "DDS guided setpoint rejected: external control unavailable");
         return false;
     }
 
-    if guided_setpoint.ty
+    bool requested_any = false;
 
-    return false;
+    GCS_SEND_TEXT(MAV_SEVERITY_INFO,
+                  "DDS guided setpoint rx h:%u a:%u z:%u",
+                  unsigned(guided_setpoint.set_heading),
+                  unsigned(guided_setpoint.set_airspeed),
+                  unsigned(guided_setpoint.set_altitude));
+
+    // These fields align with MAV_CMD_GUIDED_CHANGE_SPEED semantics in SI units.
+    if (guided_setpoint.set_airspeed) {
+        requested_any = true;
+
+        if (isnan(guided_setpoint.airspeed_mps) || isnan(guided_setpoint.airspeed_accel_mps2)) {
+            GCS_SEND_TEXT(MAV_SEVERITY_WARNING, "DDS guided airspeed rejected: NaN value");
+            return false;
+        }
+
+        if (!external_control->set_guided_airspeed(guided_setpoint.airspeed_mps, guided_setpoint.airspeed_accel_mps2)) {
+            GCS_SEND_TEXT(MAV_SEVERITY_WARNING,
+                          "DDS guided airspeed rejected: v=%.2f accel=%.2f",
+                          double(guided_setpoint.airspeed_mps),
+                          double(guided_setpoint.airspeed_accel_mps2));
+            return false;
+        }
+    }
+
+    // heading_deg and heading_accel_limit_mss follow MAV_CMD_GUIDED_CHANGE_HEADING units.
+    if (guided_setpoint.set_heading) {
+        requested_any = true;
+
+        if (isnan(guided_setpoint.heading_deg) || isnan(guided_setpoint.heading_accel_limit_mss)) {
+            GCS_SEND_TEXT(MAV_SEVERITY_WARNING, "DDS guided heading rejected: NaN value");
+            return false;
+        }
+
+        if (!external_control->set_guided_heading(guided_setpoint.heading_type,
+                                                   guided_setpoint.heading_deg,
+                                                   guided_setpoint.heading_accel_limit_mss)) {
+            GCS_SEND_TEXT(MAV_SEVERITY_WARNING,
+                          "DDS guided heading rejected: type=%u hdg=%.2f accel=%.2f",
+                          unsigned(guided_setpoint.heading_type),
+                          double(guided_setpoint.heading_deg),
+                          double(guided_setpoint.heading_accel_limit_mss));
+            return false;
+        }
+    }
+
+    // altitude_m and climb_rate_mps follow MAV_CMD_GUIDED_CHANGE_ALTITUDE units.
+    if (guided_setpoint.set_altitude) {
+        requested_any = true;
+
+        if (isnan(guided_setpoint.altitude_m) || isnan(guided_setpoint.climb_rate_mps)) {
+            GCS_SEND_TEXT(MAV_SEVERITY_WARNING, "DDS guided altitude rejected: NaN value");
+            return false;
+        }
+
+        if (!external_control->set_guided_altitude(guided_setpoint.altitude_m,
+                                                    guided_setpoint.altitude_frame,
+                                                    guided_setpoint.climb_rate_mps)) {
+            GCS_SEND_TEXT(MAV_SEVERITY_WARNING,
+                          "DDS guided altitude rejected: frame=%u alt=%.2f rate=%.2f",
+                          unsigned(guided_setpoint.altitude_frame),
+                          double(guided_setpoint.altitude_m),
+                          double(guided_setpoint.climb_rate_mps));
+            return false;
+        }
+    }
+
+    if (!requested_any) {
+        GCS_SEND_TEXT(MAV_SEVERITY_WARNING, "DDS guided setpoint rejected: no fields requested");
+    }
+
+    return requested_any;
 }
 
 bool AP_DDS_External_Control::arm(AP_Arming::Method method, bool do_arming_checks)
